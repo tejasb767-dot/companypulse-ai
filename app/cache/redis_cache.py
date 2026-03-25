@@ -10,13 +10,23 @@ class RedisCache:
 
     def __init__(self):
 
-        self.client = redis.Redis(
-            host="localhost",
-            port=6379,
-            decode_responses=True,
-        )
+        try:
+            self.client = redis.Redis(
+                host="localhost",
+                port=6379,
+                decode_responses=True,
+            )
+
+            # test connection
+            self.client.ping()
+
+        except Exception:
+            self.client = None
 
     def get(self, key):
+
+        if not self.client:
+            return None
 
         data = self.client.get(key)
 
@@ -26,6 +36,9 @@ class RedisCache:
         return json.loads(data)
 
     def set(self, key, value, ttl=60):
+
+        if not self.client:
+            return
 
         self.client.set(
             key,

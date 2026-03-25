@@ -23,11 +23,7 @@ def create_app() -> FastAPI:
     # ✅ CORS
     app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "*",
-        "https://companypulse-a.vercel.app",
-        "https://companypulse-3qarlw1ge-tejasb767-dots-projects.vercel.app",
-    ],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

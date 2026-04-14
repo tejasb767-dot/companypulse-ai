@@ -134,7 +134,7 @@ export default function Chatbot() {
 
     try {
       const response = await axios.post(
-      "https://companypulse-backend-tejas.onrender.com/api/chatbot",
+      "https://companypulse-backend-tejas.onrender.com/chatbot",
       {
         message: userText,
       }

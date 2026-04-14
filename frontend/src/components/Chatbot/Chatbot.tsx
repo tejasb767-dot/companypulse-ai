@@ -134,12 +134,11 @@ export default function Chatbot() {
 
     try {
       const response = await axios.post(
-        "http://127.0.0.1:8000/chatbot",
-        {
-          message: userText,
-        }
-      );
-
+      "https://companypulse-backend-tejas.onrender.com/api/chatbot",
+      {
+        message: userText,
+      }
+    );
       setMessages((prev) => [
         ...prev,
         {

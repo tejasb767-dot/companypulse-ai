@@ -1,12 +1,8 @@
-import time
 import httpx
 
-from app.ai.ai_service import AIService
 from app.config.settings import get_settings
 from app.cache.redis_cache import cache
-from app.tasks.task_runner import run_background
 from app.tasks.queue import add_job
-from app.tasks.ai_tasks import ai_job
 
 settings = get_settings()
 
@@ -14,15 +10,29 @@ settings = get_settings()
 class CompanyService:
 
     def __init__(self):
-        self.ai = AIService()
+        pass
 
     async def get_company(self, symbol: str):
 
         cache_key = f"company:{symbol}"
+        ai_key = f"ai:{symbol}"
 
+        # First check company cache
         cached = cache.get(cache_key)
 
+        # If cached company exists, refresh only summary from Redis AI cache
         if cached:
+            ai_cached = cache.get(ai_key)
+
+            if ai_cached:
+                cached["summary"] = ai_cached.get(
+                    "summary",
+                    "No AI summary available"
+                )
+                cached["ai_status"] = "done"
+
+                cache.set(cache_key, cached, ttl=120)
+
             return cached
 
         async with httpx.AsyncClient() as client:
@@ -71,20 +81,17 @@ class CompanyService:
         closes = []
 
         try:
-
             if chart_res.status_code == 200:
 
                 chart_json = chart_res.json()
 
-                result_chart = chart_json.get(
-                    "chart", {}
-                ).get("result", [])
+                result_chart = (
+                    chart_json.get("chart", {})
+                    .get("result", [])
+                )
 
                 if result_chart:
-
-                    timestamps = result_chart[0].get(
-                        "timestamp", []
-                    )
+                    timestamps = result_chart[0].get("timestamp", [])
 
                     closes = (
                         result_chart[0]
@@ -116,22 +123,22 @@ class CompanyService:
             "52w_low": metric.get("52WeekLow"),
         }
 
-        graph_5y = {
-            "t": timestamps,
-            "c": closes,
-        }
-
         ai_input = {
             "profile": profile,
             "quote": quote,
             "metrics": filtered_metrics,
         }
 
-        ai_key = f"ai:{symbol}"
-
         ai_cached = cache.get(ai_key)
 
-        if not ai_cached:
+        if ai_cached:
+            summary = ai_cached.get(
+                "summary",
+                "No AI summary available"
+            )
+            ai_status = "done"
+        else:
+            from app.tasks.ai_tasks import ai_job
 
             await add_job(
                 lambda: ai_job(symbol, ai_input)
@@ -140,13 +147,7 @@ class CompanyService:
             summary = "AI analysis generating..."
             ai_status = "generating"
 
-        else:
-
-            summary = ai_cached.get("summary")
-            ai_status = "done"
-
         result = {
-
             "company": {
                 "name": profile.get("name"),
                 "ticker": profile.get("ticker"),
@@ -166,7 +167,6 @@ class CompanyService:
                 "prev_close": quote.get("pc"),
             },
 
-            # ✅ FIX HERE
             "summary": summary,
 
             "valuation": {
@@ -200,8 +200,8 @@ class CompanyService:
             },
 
             "chart": {
-                "t": graph_5y["t"],
-                "c": graph_5y["c"],
+                "t": timestamps,
+                "c": closes,
             },
 
             "ai_status": ai_status,

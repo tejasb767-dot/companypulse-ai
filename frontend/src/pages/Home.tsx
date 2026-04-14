@@ -1,9 +1,10 @@
 import SearchBox from "../components/SearchBox";
+import LatestNews from "../components/LatestNews";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import Chatbot from "../components/Chatbot/Chatbot";
 
 export default function Home() {
-
   const navigate = useNavigate();
 
   const companies = [
@@ -20,65 +21,51 @@ export default function Home() {
   ];
 
   return (
+    <div className="relative min-h-screen overflow-x-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50">
+      <div className="absolute inset-0 bg-gradient-to-r from-blue-200 via-purple-200 to-pink-200 blur-3xl opacity-30" />
 
-    <div className="relative flex flex-col items-center justify-center mt-20">
+      <div className="relative flex flex-col items-center justify-center mt-20 px-6 z-10">
+        <motion.h1
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-5xl md:text-7xl font-bold text-gray-800 text-center"
+        >
+          CompanyPulse AI
+        </motion.h1>
 
-      {/* background */}
-      <div className="absolute inset-0 bg-gradient-to-r from-blue-200 via-purple-200 to-pink-200 blur-3xl opacity-40" />
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="mt-4 text-lg md:text-xl text-gray-700 text-center"
+        >
+          AI Powered Stock Analysis Platform
+        </motion.p>
 
-      {/* title */}
-      <motion.h1
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-6xl font-bold text-gray-800 z-10"
-      >
-        CompanyPulse AI
-      </motion.h1>
-
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="mt-4 text-lg text-gray-700 z-10"
-      >
-        AI Powered Stock Analysis Platform
-      </motion.p>
-
-      {/* search */}
-      <div className="mt-10 z-10 w-full flex justify-center">
-        <SearchBox />
-      </div>
-
-
-      {/* OR ANALYZE */}
-      <div className="mt-24 z-0 text-center">
-
-        <p className="text-gray-600 mb-3">
-          Or analyze
-        </p>
-
-        <div className="flex flex-wrap justify-center gap-3 max-w-3xl">
-
-          {companies.map((c) => (
-
-            <div
-              key={c.symbol}
-              onClick={() => navigate(`/company/${c.symbol}`)}
-              className="px-4 py-2 rounded border
-              bg-white text-gray-700
-              cursor-pointer
-              hover:bg-blue-600
-              hover:text-white
-              transition"
-            >
-              {c.name}
-            </div>
-
-          ))}
-
+        <div className="mt-10 w-full flex justify-center">
+          <SearchBox />
         </div>
 
-      </div>
+        <div className="mt-24 text-center w-full max-w-4xl">
+          <p className="text-gray-600 mb-5 text-lg">Or analyze</p>
 
+          <div className="flex flex-wrap justify-center gap-3">
+            {companies.map((c) => (
+              <motion.div
+                key={c.symbol}
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.97 }}
+                onClick={() => navigate(`/company/${c.symbol}`)}
+                className="px-5 py-3 rounded-2xl border border-gray-200 bg-white/90 text-gray-700 cursor-pointer shadow-sm hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all duration-300"
+              >
+                {c.name}
+              </motion.div>
+            ))}
+          </div>
+        </div>
+
+        <LatestNews />
+      </div>
+      <Chatbot />
     </div>
   );
 }

@@ -17,7 +17,6 @@ class RedisCache:
                 decode_responses=True,
             )
 
-            # test connection
             self.client.ping()
 
         except Exception:
@@ -45,6 +44,13 @@ class RedisCache:
             json.dumps(value),
             ex=ttl,
         )
+
+    def delete(self, key):
+
+        if not self.client:
+            return
+
+        self.client.delete(key)
 
 
 cache = None

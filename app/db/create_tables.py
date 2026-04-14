@@ -6,4 +6,5 @@ from app.db.models.watchlist import Watchlist
 from app.db.models.portfolio import Portfolio
 
 
-Base.metadata.create_all(bind=engine)
+def create_tables():
+    Base.metadata.create_all(bind=engine)

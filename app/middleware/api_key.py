@@ -10,7 +10,8 @@ PUBLIC_PATHS = [
     "/docs",
     "/openapi",
     "/chatbot",
-    "/api/chatbot",   # add this
+    "/api/chatbot",
+    "/health",   # add this
 ]
 
 

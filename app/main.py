@@ -14,6 +14,13 @@ def create_app() -> FastAPI:
         debug=settings.DEBUG,
     )
 
+    @app.get("/health")
+    def health_check():
+        return {
+            "status": "ok",
+            "message": "CompanyPulse backend is running"
+        }
+
     # ✅ CORS
     app.add_middleware(
         CORSMiddleware,

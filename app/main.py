@@ -22,6 +22,9 @@ def create_app() -> FastAPI:
             "message": "CompanyPulse backend is running"
         }
 
+    # ✅ API KEY middleware
+    app.add_middleware(APIKeyMiddleware)
+
     # ✅ CORS
     app.add_middleware(
         CORSMiddleware,
@@ -33,9 +36,6 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
-
-    # ✅ API KEY middleware
-    app.add_middleware(APIKeyMiddleware)
 
     # ✅ Routers
     app.include_router(api_router)

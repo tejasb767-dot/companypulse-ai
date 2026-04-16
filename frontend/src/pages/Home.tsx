@@ -21,50 +21,86 @@ export default function Home() {
   ];
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50">
-      <div className="absolute inset-0 bg-gradient-to-r from-blue-200 via-purple-200 to-pink-200 blur-3xl opacity-30" />
+    <div className="relative min-h-screen w-full overflow-hidden bg-black text-white">
+      {/* Full black background */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_bottom,#000000,#050505,#0a0a0a)]" />
 
-      <div className="relative flex flex-col items-center justify-center mt-20 px-6 z-10">
-        <motion.h1
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-5xl md:text-7xl font-bold text-gray-800 text-center"
-        >
-          CompanyPulse AI
-        </motion.h1>
+      {/* Soft white glow background */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <motion.div
+          animate={{
+            x: [0, 40, -20, 0],
+            y: [0, -20, 20, 0],
+          }}
+          transition={{ duration: 12, repeat: Infinity }}
+          className="absolute -top-20 -left-20 h-96 w-96 rounded-full bg-white/[0.03] blur-[120px]"
+        />
 
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="mt-4 text-lg md:text-xl text-gray-700 text-center"
-        >
-          AI Powered Stock Analysis Platform
-        </motion.p>
-
-        <div className="mt-10 w-full flex justify-center">
-          <SearchBox />
-        </div>
-
-        <div className="mt-24 text-center w-full max-w-4xl">
-          <p className="text-gray-600 mb-5 text-lg">Or analyze</p>
-
-          <div className="flex flex-wrap justify-center gap-3">
-            {companies.map((c) => (
-              <motion.div
-                key={c.symbol}
-                whileHover={{ scale: 1.05, y: -2 }}
-                whileTap={{ scale: 0.97 }}
-                onClick={() => navigate(`/company/${c.symbol}`)}
-                className="px-5 py-3 rounded-2xl border border-gray-200 bg-white/90 text-gray-700 cursor-pointer shadow-sm hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all duration-300"
-              >
-                {c.name}
-              </motion.div>
-            ))}
-          </div>
-        </div>
-
-        <LatestNews />
+        <motion.div
+          animate={{
+            x: [0, -30, 20, 0],
+            y: [0, 30, -20, 0],
+          }}
+          transition={{ duration: 14, repeat: Infinity }}
+          className="absolute bottom-0 right-0 h-[30rem] w-[30rem] rounded-full bg-white/[0.04] blur-[140px]"
+        />
       </div>
+
+      {/* Main Content */}
+      <div className="relative z-10 w-full px-0 pt-0 pb-20">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7 }}
+          className="w-full min-h-[calc(100vh-6rem)] border-y border-white/10 bg-black/70 px-10 py-16 backdrop-blur-3xl shadow-[0_20px_80px_rgba(0,0,0,0.7)]"
+        >
+          <motion.h1
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center text-5xl font-black tracking-tight text-white md:text-7xl"
+          >
+            CompanyPulse AI
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.15 }}
+            className="mt-6 text-center text-lg text-gray-400 md:text-2xl"
+          >
+            Real-Time AI Powered Stock Intelligence & Market Insights
+          </motion.p>
+
+          <div className="mt-10 flex justify-center">
+            <SearchBox />
+          </div>
+
+          <div className="mt-20 text-center">
+            <p className="mb-6 text-lg text-gray-500">
+              Analyze Trending Companies
+            </p>
+
+            <div className="flex flex-wrap justify-center gap-4">
+              {companies.map((c) => (
+                <motion.div
+                  key={c.symbol}
+                  whileHover={{ scale: 1.05, y: -4 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => navigate(`/company/${c.symbol}`)}
+                  className="cursor-pointer rounded-2xl border border-white/10 bg-white/5 px-6 py-3 text-gray-200 backdrop-blur-xl transition-all duration-300 hover:border-white/20 hover:bg-white hover:text-black hover:shadow-[0_0_30px_rgba(255,255,255,0.15)]"
+                >
+                  {c.name}
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </motion.div>
+
+        <div className="relative z-10 mt-0 w-full">
+          <LatestNews />
+        </div>
+      </div>
+
       <Chatbot />
     </div>
   );

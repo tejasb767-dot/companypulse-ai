@@ -5,15 +5,13 @@ import MarketBar from "../components/MarketBar";
 
 export default function MainLayout() {
   return (
-    <div className="bg-gray-100 min-h-screen">
-
+    <div className="min-h-screen w-full bg-black">
       <MarketBar />
       <Navbar />
 
-      <div className="max-w-7xl mx-auto p-6">
+      <main className="w-full">
         <Outlet />
-      </div>
-
+      </main>
     </div>
   );
 }

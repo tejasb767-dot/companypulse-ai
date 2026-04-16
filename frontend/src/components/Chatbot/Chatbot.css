@@ -297,8 +297,14 @@
   border-radius: 16px;
   padding: 13px 14px;
   font-size: 14px;
+  color: #111827;
+  caret-color: #2563eb;
   outline: none;
   transition: all 0.2s ease;
+}
+
+.chatbot-input::placeholder {
+  color: #9ca3af;
 }
 
 .chatbot-input:focus {

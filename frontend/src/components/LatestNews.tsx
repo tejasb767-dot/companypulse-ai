@@ -32,6 +32,7 @@ export default function LatestNews() {
         );
 
         const data = await response.json();
+        console.log(data);
 
         if (!response.ok) {
           setError(
@@ -46,7 +47,18 @@ export default function LatestNews() {
           return;
         }
 
-        setNews(data.slice(0, 12));
+        // keep only articles that have title and url
+        const validNews = data
+          .filter(
+            (item: any) =>
+              item.headline &&
+              item.url &&
+              item.headline.trim() !== "" &&
+              item.url.trim() !== ""
+          )
+          .slice(0, 12);
+
+        setNews(validNews);
       } catch (err) {
         console.error(err);
         setError("Failed to load live financial news.");
@@ -59,63 +71,91 @@ export default function LatestNews() {
   }, []);
 
   return (
-    <section className="w-full max-w-7xl px-6 mt-32 mb-20 z-10">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-10 gap-4">
+    <section className="relative z-10 mt-0 mb-0 w-full border-t border-white/10 bg-black px-10 py-12">
+      {/* subtle background glow */}
+      <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+        <div className="absolute top-0 left-0 h-80 w-80 rounded-full bg-white/[0.03] blur-[120px]" />
+        <div className="absolute right-0 bottom-0 h-96 w-96 rounded-full bg-white/[0.04] blur-[140px]" />
+      </div>
+
+      {/* heading */}
+      <div className="mb-14 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <h2 className="text-4xl font-bold text-gray-800">
+          <div className="mb-5 inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 backdrop-blur-xl">
+            <span className="h-2 w-2 rounded-full bg-white/70" />
+            <span className="text-xs font-semibold tracking-[0.25em] text-white/60">
+              LIVE NEWS FEED
+            </span>
+          </div>
+
+          <h2 className="text-4xl font-black tracking-tight text-white md:text-6xl">
             Latest Market News
           </h2>
-          <p className="mt-2 text-gray-600 text-lg">
-            Live financial updates, earnings, markets and company headlines.
+
+          <p className="mt-4 max-w-2xl text-base leading-7 text-gray-500 md:text-lg">
+            Real-time financial headlines, market movements and company updates.
           </p>
         </div>
 
-        <div className="flex items-center gap-2 bg-white/80 border border-green-200 rounded-full px-4 py-2 shadow-sm w-fit">
-          <span className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse"></span>
-          <span className="text-sm font-semibold text-gray-700">
-            Live from Finnhub
+        <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-3 backdrop-blur-2xl">
+          <div className="h-2.5 w-2.5 rounded-full bg-green-400 animate-pulse" />
+          <span className="text-sm font-medium text-white/70">
+            Finnhub Feed Active
           </span>
         </div>
       </div>
 
+      {/* loading state */}
       {loading && (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3">
           {[...Array(6)].map((_, i) => (
             <div
               key={i}
-              className="rounded-3xl overflow-hidden bg-white/80 shadow-lg animate-pulse"
+              className="overflow-hidden rounded-[2rem] border border-white/10 bg-[#0b0b0b] animate-pulse"
             >
-              <div className="h-56 bg-gray-300" />
+              <div className="h-60 bg-white/5" />
               <div className="p-6">
-                <div className="h-5 bg-gray-300 rounded w-3/4 mb-4" />
-                <div className="h-4 bg-gray-200 rounded mb-2" />
-                <div className="h-4 bg-gray-200 rounded w-5/6 mb-6" />
-                <div className="h-4 bg-gray-300 rounded w-1/3" />
+                <div className="mb-4 h-4 w-28 rounded bg-white/10" />
+                <div className="mb-3 h-6 w-4/5 rounded bg-white/10" />
+                <div className="mb-2 h-4 rounded bg-white/5" />
+                <div className="h-4 w-5/6 rounded bg-white/5" />
               </div>
             </div>
           ))}
         </div>
       )}
 
+      {/* error state */}
       {!loading && error && (
-        <div className="rounded-3xl bg-red-50 border border-red-200 p-8 text-center shadow-md">
-          <h3 className="text-2xl font-bold text-red-600 mb-2">
-            Could not load news
+        <div className="rounded-[2rem] border border-red-500/20 bg-red-500/10 p-8 text-center backdrop-blur-2xl">
+          <h3 className="mb-3 text-2xl font-bold text-red-400">
+            Could Not Load News
           </h3>
-          <p className="text-gray-700">{error}</p>
 
-          <div className="mt-4 text-sm text-gray-500">
-            Make sure your file contains:
-          </div>
+          <p className="text-gray-300">{error}</p>
 
-          <pre className="mt-3 inline-block rounded-xl bg-gray-900 text-green-400 px-4 py-3 text-left text-sm">
+          <pre className="mt-5 inline-block rounded-2xl border border-white/10 bg-black/60 px-4 py-3 text-left text-sm text-green-400">
 {`VITE_FINNHUB_API_KEY=your_actual_finnhub_key`}
           </pre>
         </div>
       )}
 
-      {!loading && !error && (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+      {/* no news fallback */}
+      {!loading && !error && news.length === 0 && (
+        <div className="rounded-[2rem] border border-white/10 bg-[#0b0b0b] p-10 text-center">
+          <h3 className="mb-3 text-2xl font-bold text-white">
+            No News Available
+          </h3>
+
+          <p className="text-gray-500">
+            Finnhub returned no news. Check your API key or API rate limit.
+          </p>
+        </div>
+      )}
+
+      {/* cards */}
+      {!loading && !error && news.length > 0 && (
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3">
           {news.map((item, index) => (
             <motion.a
               key={index}
@@ -125,41 +165,56 @@ export default function LatestNews() {
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: index * 0.05 }}
+              transition={{ duration: 0.45, delay: index * 0.05 }}
               whileHover={{ y: -8 }}
-              className="group overflow-hidden rounded-3xl bg-white/85 border border-white/60 backdrop-blur-md shadow-lg hover:shadow-2xl transition-all duration-300"
+              className="group overflow-hidden rounded-[2rem] border border-white/10 bg-[#0b0b0b]/95 backdrop-blur-3xl shadow-[0_20px_60px_rgba(0,0,0,0.6)] transition-all duration-300 hover:border-white/20 hover:shadow-[0_30px_80px_rgba(255,255,255,0.06)]"
             >
               <div className="relative overflow-hidden">
                 <img
                   src={
-                    item.image && item.image.length > 0
+                    item.image &&
+                    item.image.trim() !== "" &&
+                    item.image !== "https://static2.finnhub.io/file/publicdatany/finnhubimage/market_news.jpg"
                       ? item.image
                       : "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?q=80&w=1200&auto=format&fit=crop"
                   }
                   alt={item.headline}
-                  className="w-full h-56 object-cover transition-transform duration-500 group-hover:scale-105"
+                  onError={(e) => {
+                    e.currentTarget.src =
+                      "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?q=80&w=1200&auto=format&fit=crop";
+                  }}
+                  className="h-60 w-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
 
-                <div className="absolute top-4 left-4 bg-black/70 text-white text-xs font-semibold px-3 py-1 rounded-full backdrop-blur-sm">
-                  {item.source}
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+
+                <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
+                  <div className="rounded-full border border-white/10 bg-black/70 px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-white/80 backdrop-blur-xl">
+                    {item.source}
+                  </div>
+
+                  <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-bold tracking-[0.15em] text-white/60 backdrop-blur-xl">
+                    LIVE
+                  </div>
                 </div>
               </div>
 
-              <div className="p-6">
-                <p className="text-xs uppercase tracking-wider text-blue-600 font-semibold mb-3">
+              <div className="p-7">
+                <p className="mb-4 text-xs font-bold uppercase tracking-[0.3em] text-white/40">
                   {new Date(item.datetime * 1000).toLocaleString()}
                 </p>
 
-                <h3 className="text-xl font-bold text-gray-900 line-clamp-2 group-hover:text-blue-600 transition-colors">
+                <h3 className="line-clamp-2 text-2xl font-bold leading-snug text-white transition-colors duration-300 group-hover:text-white/80">
                   {item.headline}
                 </h3>
 
-                <p className="mt-4 text-gray-600 text-sm leading-6 line-clamp-4">
+                <p className="mt-4 line-clamp-4 text-sm leading-7 text-gray-500">
                   {item.summary}
                 </p>
 
-                <div className="mt-6 flex items-center text-blue-600 font-semibold text-sm group-hover:translate-x-1 transition-transform duration-300">
-                  Read full article →
+                <div className="mt-7 flex items-center gap-3 text-sm font-semibold uppercase tracking-[0.2em] text-white/70 transition-all duration-300 group-hover:gap-5 group-hover:text-white">
+                  Explore Story
+                  <span className="text-base">→</span>
                 </div>
               </div>
             </motion.a>

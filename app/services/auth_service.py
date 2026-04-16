@@ -1,61 +1,87 @@
-from app.auth.user_store import users
 from app.auth.otp_service import OTPService
 from app.auth.jwt_service import JWTService
-from app.repositories.user_db_repository import UserDBRepository
+from app.db.models.user import User
 
 
 class AuthService:
 
-    def __init__(self):
-        self.repo = UserDBRepository()
+    def __init__(self, db):
+        self.db = db
         self.otp = OTPService()
         self.jwt = JWTService()
 
-    def send_otp(self, mobile):
+    def send_otp(self, email):
+        existing_user = self.db.query(User).filter(User.email == email).first()
 
-        self.otp.send_otp(mobile)
+        if existing_user:
+            return {
+                "success": False,
+                "message": "Account already exists. Please log in."
+            }
 
-        return {"message": "OTP sent"}
-
-    def verify_otp(self, mobile, otp):
-
-        if not self.otp.verify_otp(mobile, otp):
-            return {"error": "Invalid OTP"}
-
-        user = self.repo.get_user_by_mobile(mobile)
-
-        if not user:
-            return {"new_user": True}
-
-        token = self.jwt.create_token(mobile)
+        self.otp.send_otp(email)
 
         return {
-            "new_user": False,
-            "token": token,
-            "user": {
-                "name": user.name,
-                "country": user.country,
-            },
+            "success": True,
+            "message": "OTP sent"
+        }
+    def verify_otp(self, email, otp):
+        if not self.otp.verify_otp(email, otp):
+            return {
+                "success": False,
+                "message": "Invalid OTP"
+            }
+
+        return {
+            "success": True
         }
 
-    def register(self, mobile, name, country):
+    def register(self, email, password, country):
+        existing_user = self.db.query(User).filter(User.email == email).first()
 
-        user = self.repo.create_user(
-            mobile,
-            name,
-            country,
+        if existing_user:
+            return {
+                "success": False,
+                "message": "Account already exists. Please login."
+            }
+
+        user = User(
+            email=email,
+            password=password,
+            country=country
         )
 
-        token = self.jwt.create_token(mobile)
+        self.db.add(user)
+        self.db.commit()
+        self.db.refresh(user)
+
+        token = self.jwt.create_token(email)
 
         return {
+            "success": True,
+            "message": "Account created",
             "token": token,
-            "user": {
-                "name": user.name,
-                "country": user.country,
-            },
         }
 
-    def get_user(self, mobile):
+    def login(self, email, password):
+        user = self.db.query(User).filter(User.email == email).first()
 
-        return users.get(mobile)
+        if not user:
+            return {
+                "success": False,
+                "message": "Invalid account. Please create an account."
+            }
+
+        if user.password != password:
+            return {
+                "success": False,
+                "message": "Invalid password"
+            }
+
+        token = self.jwt.create_token(email)
+
+        return {
+            "success": True,
+            "message": "Welcome back",
+            "token": token,
+        }

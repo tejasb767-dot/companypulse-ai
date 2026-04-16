@@ -1,33 +1,43 @@
 import api from "./client";
 
-export async function sendOTP(mobile: string) {
+export async function sendOTP(email: string) {
   const res = await api.post("/auth/send-otp", {
-    mobile,
+    email,
   });
 
   return res.data;
 }
 
-
-export async function verifyOTP(mobile: string, otp: string) {
+export async function verifyOTP(email: string, otp: string) {
   const res = await api.post("/auth/verify-otp", {
-    mobile,
+    email,
     otp,
   });
 
   return res.data;
 }
 
-
 export async function registerUser(
-  mobile: string,
-  name: string,
+  email: string,
+  password: string,
   country: string
 ) {
   const res = await api.post("/auth/register", {
-    mobile,
-    name,
+    email,
+    password,
     country,
+  });
+
+  return res.data;
+}
+
+export async function loginUser(
+  email: string,
+  password: string
+) {
+  const res = await api.post("/auth/login", {
+    email,
+    password,
   });
 
   return res.data;

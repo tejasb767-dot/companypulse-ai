@@ -2,15 +2,20 @@ from pydantic import BaseModel
 
 
 class SendOTP(BaseModel):
-    mobile: str
+    email: str
 
 
 class VerifyOTP(BaseModel):
-    mobile: str
+    email: str
     otp: str
 
 
 class RegisterUser(BaseModel):
-    mobile: str
-    name: str
+    email: str
+    password: str
     country: str
+
+
+class LoginUser(BaseModel):
+    email: str
+    password: str

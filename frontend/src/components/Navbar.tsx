@@ -1,6 +1,33 @@
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 
 export default function Navbar() {
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [username, setUsername] = useState("");
+  const [showMenu, setShowMenu] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const savedName =
+      localStorage.getItem("username") ||
+      localStorage.getItem("email") ||
+      "User";
+
+    if (token) {
+      setLoggedIn(true);
+      setUsername(savedName.split("@")[0].toUpperCase());
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("username");
+    localStorage.removeItem("email");
+
+    window.location.href = "/login";
+  };
+
   return (
     <motion.nav
       initial={{ y: -20, opacity: 0 }}
@@ -35,7 +62,58 @@ export default function Navbar() {
         {/* Right */}
         <div className="flex items-center gap-3">
           <NavItem href="/" label="Home" />
-          <NavItem href="/login" label="Login" />
+
+          {!loggedIn ? (
+            <NavItem href="/login" label="Login" />
+          ) : (
+            <div
+              className="relative pb-2"
+              onMouseEnter={() => setShowMenu(true)}
+              onMouseLeave={() => setShowMenu(false)}
+            >
+              <button
+                className="
+                  group relative overflow-hidden rounded-2xl border border-white/10
+                  bg-white/[0.04] px-6 py-3 text-sm font-semibold text-gray-300
+                  backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5
+                  hover:border-white/20 hover:bg-white hover:text-black
+                  hover:shadow-[0_0_25px_rgba(255,255,255,0.15)]
+                "
+              >
+                {username}
+              </button>
+
+              {showMenu && (
+                <div
+                  className="
+                  absolute right-0 top-full w-44 rounded-2xl border border-white/10
+                  bg-[#0f172a]/95 p-2 shadow-2xl backdrop-blur-2xl
+                "
+                >
+                  <a
+                    href="/history"
+                    className="
+                      block rounded-xl px-4 py-3 text-sm font-medium text-gray-300
+                      transition hover:bg-white/10 hover:text-white
+                    "
+                  >
+                    History
+                  </a>
+
+                  <button
+                    onClick={handleLogout}
+                    className="
+                      w-full rounded-xl px-4 py-3 text-left text-sm font-medium
+                      text-red-300 transition hover:bg-red-500/10 hover:text-red-200
+                    "
+                  >
+                    Sign Out
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
           <NavItem href="/about" label="About" />
         </div>
       </div>

@@ -8,7 +8,7 @@ This project simulates a professional financial analysis dashboard similar to re
 
 ## 🌐 Live Demo
 
-Frontend: https://companypulse-a.vercel.app/.
+Frontend: https://companypulse-ai.vercel.app/.
 
 Backend API: https://companypulse-backend-tejas.onrender.com/docs.
 

@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { searchCompany } from "../api/search";
@@ -7,8 +7,26 @@ export default function SearchBox() {
   const [text, setText] = useState("");
   const [results, setResults] = useState<any[]>([]);
   const searchTimeout = useRef<any>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        wrapperRef.current &&
+        !wrapperRef.current.contains(event.target as Node)
+      ) {
+        setResults([]);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   async function onChange(e: any) {
     const value = e.target.value;
@@ -28,7 +46,7 @@ export default function SearchBox() {
         const res = await searchCompany(value);
 
         if (Array.isArray(res)) {
-          setResults(res.slice(0, 8));
+          setResults(res.slice(0, 12));
         } else {
           setResults([]);
         }
@@ -56,7 +74,10 @@ export default function SearchBox() {
   }
 
   return (
-    <div className="relative w-full max-w-2xl mx-auto group">
+    <div
+      ref={wrapperRef}
+      className="relative w-full max-w-2xl mx-auto group"
+    >
       <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-cyan-500 via-blue-500 to-green-500 blur-xl opacity-40 transition duration-500 group-hover:opacity-70" />
 
       <div className="relative">
@@ -78,7 +99,7 @@ export default function SearchBox() {
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.2 }}
-          className="absolute z-50 mt-3 w-full overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-2xl"
+          className="absolute z-50 mt-3 w-full max-h-[320px] overflow-y-auto overflow-x-hidden rounded-3xl border border-gray-200 bg-white shadow-2xl"
         >
           {results.map((r, i) => (
             <motion.div

@@ -5,6 +5,11 @@ from app.core.logging import setup_logging
 from app.api.router import api_router
 from app.middleware.api_key import APIKeyMiddleware
 
+# NEW IMPORTS
+from app.db.base import Base
+from app.db.session import engine
+from app.db.models.user import User
+
 settings = get_settings()
 logger = setup_logging()
 
@@ -23,7 +28,10 @@ def create_app() -> FastAPI:
             "message": "CompanyPulse backend is running"
         }
 
-    # ✅ CORS must come before APIKeyMiddleware
+    # create DB tables if they do not exist
+    Base.metadata.create_all(bind=engine)
+
+    # CORS
     app.add_middleware(
         CORSMiddleware,
         allow_origins=[
@@ -35,10 +43,10 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
-    # ✅ API KEY middleware
+    # API KEY middleware
     app.add_middleware(APIKeyMiddleware)
 
-    # ✅ Routers
+    # Routers
     app.include_router(api_router)
 
     return app

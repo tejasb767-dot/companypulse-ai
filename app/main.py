@@ -8,6 +8,7 @@ from app.middleware.api_key import APIKeyMiddleware
 settings = get_settings()
 logger = setup_logging()
 
+
 def create_app() -> FastAPI:
     app = FastAPI(
         title=settings.APP_NAME,
@@ -22,10 +23,7 @@ def create_app() -> FastAPI:
             "message": "CompanyPulse backend is running"
         }
 
-    # ✅ API KEY middleware
-    app.add_middleware(APIKeyMiddleware)
-
-    # ✅ CORS
+    # ✅ CORS must come before APIKeyMiddleware
     app.add_middleware(
         CORSMiddleware,
         allow_origins=[
@@ -37,10 +35,14 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
+    # ✅ API KEY middleware
+    app.add_middleware(APIKeyMiddleware)
+
     # ✅ Routers
     app.include_router(api_router)
 
     return app
+
 
 app = create_app()
 

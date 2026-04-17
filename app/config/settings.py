@@ -1,5 +1,6 @@
 from functools import lru_cache
 from pydantic_settings import BaseSettings, SettingsConfigDict
+import os
 
 
 class Settings(BaseSettings):
@@ -15,11 +16,11 @@ class Settings(BaseSettings):
     FMP_API_KEY: str = ""
 
     # ---------- DB ----------
-    DB_HOST: str
-    DB_PORT: int
-    DB_NAME: str
-    DB_USER: str
-    DB_PASS: str
+    DB_HOST: str = ""
+    DB_PORT: int = 5432
+    DB_NAME: str = ""
+    DB_USER: str = ""
+    DB_PASS: str = ""
 
     # ---------- CONFIG ----------
     REQUEST_TIMEOUT: int = 10
@@ -29,16 +30,17 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    # ✅ IMPORTANT
     @property
     def DATABASE_URL(self):
-
-        return (
-            f"postgresql://{self.DB_USER}:"
-            f"{self.DB_PASS}@"
-            f"{self.DB_HOST}:"
-            f"{self.DB_PORT}/"
-            f"{self.DB_NAME}"
+        return os.getenv(
+            "DATABASE_URL",
+            (
+                f"postgresql+psycopg2://{self.DB_USER}:"
+                f"{self.DB_PASS}@"
+                f"{self.DB_HOST}:"
+                f"{self.DB_PORT}/"
+                f"{self.DB_NAME}"
+            )
         )
 
 
